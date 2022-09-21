@@ -13,5 +13,5 @@ if [ "${ec}" -eq 1 ]; then
     --registry=docker.io/fluxcd
 
   kubectl apply -k "${cluster_path}"
-  kubectl -n flux-system wait kustomization/${flux_ks} --for=condition=ready --timeout=2m
+  kubectl -n flux-system wait kustomization/${flux_ks} --for=condition=ready --timeout=5m
 fi

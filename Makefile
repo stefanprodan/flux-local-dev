@@ -5,8 +5,8 @@
 
 .PHONY: up
 up: cluster-up flux-push flux-up ## Create the local cluster and registry, install Flux and the cluster addons
-	kubectl -n flux-system wait kustomization/cluster-sync --for=condition=ready --timeout=2m
-	kubectl -n flux-system wait kustomization/apps-sync --for=condition=ready --timeout=2m
+	kubectl -n flux-system wait kustomization/cluster-sync --for=condition=ready --timeout=5m
+	kubectl -n flux-system wait kustomization/apps-sync --for=condition=ready --timeout=5m
 
 .PHONY: down
 down: cluster-down ## Delete the local cluster and registry
