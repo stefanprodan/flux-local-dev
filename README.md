@@ -12,15 +12,16 @@
 
 ## How it works?
 
-This project spins up a Docker Registry container named `kind-registry`
-and a Kubernetes Kind cluster named `flux` under the same Docker network.
-
+This project spins up a Docker Registry container named `kind-registry` and a Kubernetes Kind cluster
+named `flux` under the same Docker network. Then it installs Flux and configures it to upgrade itself
+from the latest OCI artifact published at `ghcr.io/fluxcd/flux-manifests`.
 
 | Component             | Role                            | Host                        |
 |-----------------------|---------------------------------|-----------------------------|
 | Kubernetes KIND       | Local cluster                   | Binds to port 80 and 443    |
 | Docker Registry       | Local registry                  | Binds to port 5050          |
-| ingress-nginx         | Ingress for `*.flux.local`      | Binds to port 80 and 443    |
+| Flux                  | Cluster reconciler              | -                           |
+| ingress-nginx         | Ingress for `*.flux.local`      | -                           |
 | cert-manager          | Self-signed ingress certs       | -                           |
 | metrics-server        | Container resource metrics      | -                           |
 | kube-prometheus-stack | Prometheus Operator and Grafana | Binds to grafana.flux.local |
@@ -48,7 +49,7 @@ installed at bootstrap.
 
 ## How to get started?
 
-Install Kubernetes kind, kubectl, FLux CLI and other tools with Homebrew:
+Install Kubernetes kind, kubectl, flux and other CLI tools with Homebrew:
 
 ```shell
 make tools
