@@ -10,23 +10,23 @@
   without having to push the container images to an external registry.
 - **Flux maintainers** who want to test Flux prereleases on various Kubernetes versions and configurations.
 
-## How it works?
+## How does it work?
 
 This project spins up a Docker Registry container named `kind-registry` and a Kubernetes Kind cluster
 named `flux` under the same Docker network. Then it installs Flux and configures it to upgrade itself
 from the latest OCI artifact published at `ghcr.io/fluxcd/flux-manifests`.
 
-| Component             | Role                            | Host                        |
-|-----------------------|---------------------------------|-----------------------------|
-| Kubernetes KIND       | Local cluster                   | Binds to port 80 and 443    |
-| Docker Registry       | Local registry                  | Binds to port 5050          |
-| Flux                  | Cluster reconciler              | -                           |
-| ingress-nginx         | Ingress for `*.flux.local`      | -                           |
-| cert-manager          | Self-signed ingress certs       | -                           |
-| metrics-server        | Container resource metrics      | -                           |
-| kube-prometheus-stack | Prometheus Operator and Grafana | Binds to grafana.flux.local |
-| weave-gitops          | Flux UI                         | Binds to ui.flux.local      |
-| podinfo               | Demo app                        | Binds to podinfo.flux.local |
+| Component                                                                                                | Role                            | Host                        |
+|----------------------------------------------------------------------------------------------------------|---------------------------------|-----------------------------|
+| [Kubernetes KIND](https://kind.sigs.k8s.io/)                                                             | Local cluster                   | Binds to port 80 and 443    |
+| [Docker Registry](https://docs.docker.com/registry/)                                                     | Local registry                  | Binds to port 5050          |
+| [Flux](https://fluxcd.io)                                                                                | Cluster reconciler              | -                           |
+| [ingress-nginx](https://github.com/kubernetes/ingress-nginx)                                             | Ingress for `*.flux.local`      | -                           |
+| [cert-manager](https://github.com/cert-manager/cert-manager)                                             | Self-signed ingress certs       | -                           |
+| [metrics-server](https://github.com/kubernetes-sigs/metrics-server)                                      | Container resource metrics      | -                           |
+| [kube-prometheus-stack](https://artifacthub.io/packages/helm/prometheus-community/kube-prometheus-stack) | Prometheus Operator and Grafana | Binds to grafana.flux.local |
+| [weave-gitops](https://github.com/weaveworks/weave-gitops)                                               | Flux UI                         | Binds to ui.flux.local      |
+| [podinfo](https://github.com/stefanprodan/podinfo)                                                       | Demo app                        | Binds to podinfo.flux.local |
 
 The Docker registry is exposed on the local machine on `localhost:5050` and inside the cluster
 on `kind-registry:5000`. The registry servers two purposes:
@@ -184,4 +184,59 @@ $ flux check
 
 ✔ kustomize-controller: deployment ready
 ► localhost:5050/kustomize-controller:test1
+```
+
+## How to test Flux prereleases?
+
+Assuming you are maintainer, and you want to test the Flux controller suite
+before a release.
+
+### Build and push the manifests
+
+From within the flux2 local clone, run `make build-dev` to build the Flux CLI
+binary that embeds the install manifests.
+
+Extract the manifests to a directory with:
+
+```shell
+mkdir -p flux-vnext
+
+./bin/flux install --components-extra=image-reflector-controller,image-automation-controller \
+--export > ./flux-vnext/install.yaml
+```
+
+Push the manifests to your local registry:
+
+```shell
+./bin/flux push artifact oci://localhost:5050/flux:latest --path ./flux-vnext \
+--source="$(git config --get remote.origin.url)" \
+--revision="$(git rev-parse HEAD)"
+```
+
+### Deploy the controllers
+
+From within the flux-local-dev clone, open the `kubernetes/clusters/local/flux-system/flux-source.yaml` file,
+change the URL to point to your local registry and enable the insecure flag:
+
+```yaml
+apiVersion: source.toolkit.fluxcd.io/v1beta2
+kind: OCIRepository
+metadata:
+  name: flux-source
+  namespace: flux-system
+spec:
+  url: oci://kind-registry:5000/flux
+  insecure: true
+```
+
+Sync the changes on the cluster with `make sync` and wait for the new version to rollout:
+
+```shell
+flux reconcile ks flux-sync --with-source
+```
+
+Finally, verify that the upgrade was successful with:
+
+```shell
+flux check 
 ```
