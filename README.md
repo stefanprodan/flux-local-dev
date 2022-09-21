@@ -143,6 +143,7 @@ From within the kustomize-controller local clone, run `make docker-build` to bui
 If your local machine is an Apple M1, set the arch to `linux/arm64` and run:
 
 ```shell
+IMG=localhost:5050/kustomize-controller:latest make docker-build docker-push
 BUILD_PLATFORMS=linux/arm64 make docker-build
 ```
 
@@ -184,6 +185,16 @@ $ flux check
 
 ✔ kustomize-controller: deployment ready
 ► localhost:5050/kustomize-controller:test1
+```
+
+If you don't want to bump the image tag on every build, you can bypass the local registry
+and import the image directly in the cluster cache:
+
+```shell
+export IMG=localhost:5050/kustomize-controller:test1
+IMG=${IMG} make docker-build &&
+kind import docker-image ${IMG} &&
+kubectl delete pod -n flux-system -l app=kustomize-controller
 ```
 
 ## How to test Flux prereleases?
