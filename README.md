@@ -102,6 +102,26 @@ Access the Flux UI and Grafana using the username `admin` and password `flux`:
 
 Access the demo application on [http://podinfo.flux.local](http://ui.flux.local/).
 
+### Sync local changes
+
+Add a label to the `apps` namespace definition:
+
+```shell
+yq eval '.metadata.labels.env="dev"' -i ./kubernetes/apps/namespace.yaml
+```
+
+Push the changes to the local registry with:
+
+```shell
+make sync
+```
+
+Verify that Flux has reconciled the namespace:
+
+```shell
+kubectl get ns apps --show-labels
+```
+
 ### Teardown
 
 Delete the registry and the Kubernetes custer with:
