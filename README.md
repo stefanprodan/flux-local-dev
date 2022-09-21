@@ -81,6 +81,8 @@ The `make up` command performs the following steps:
 
 ### Access Flux UI
 
+![flux-ui](docs/img/weave-gitops-apps.png)
+
 Add the following domains to `/etc/hosts`:
 
 ```txt
