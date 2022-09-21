@@ -124,8 +124,64 @@ kubectl get ns apps --show-labels
 
 ### Teardown
 
-Delete the registry and the Kubernetes custer with:
+Delete the registry and the Kubernetes cluster with:
 
 ```shell
 make down
+```
+
+## How to test Flux controllers?
+
+Assuming you are contributing a change to kustomize-controller,
+and you want to run a series of end-to-end tests before opening a PR.
+Most importantly, you want to make sure your changes don't break Flux 
+capability to upgrade itself.
+
+### Build and push the controller image
+
+From within the kustomize-controller local clone, run `make docker-build` to build the controller image.
+If your local machine is an Apple M1, set the arch to `linux/arm64` and run:
+
+```shell
+BUILD_PLATFORMS=linux/arm64 make docker-build
+```
+
+Tag and push the image to your local registry:
+
+```shell
+docker tag fluxcd/kustomize-controller:latest localhost:5050/kustomize-controller:test1
+docker push localhost:5050/kustomize-controller:test1
+```
+
+### Deploy the controller
+
+From within the flux-local-dev clone, open the `kubernetes/clusters/local/flux-system/flux-sync.yaml` file
+and add an image patch:
+
+```yaml
+apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
+kind: Kustomization
+metadata:
+  name: flux-sync
+  namespace: flux-system
+spec:
+  images:
+    - name: ghcr.io/fluxcd/kustomize-controller
+      newName: localhost:5050/kustomize-controller
+      newTag: test1
+```
+
+Sync the changes on the cluster with `make sync` and verify that the image is being rolled out:
+
+```shell
+kubectl -n flux-system get deploy/kustomize-controller --watch
+```
+
+Finally, verify that the upgrade was successful with:
+
+```console
+$ flux check 
+
+✔ kustomize-controller: deployment ready
+► localhost:5050/kustomize-controller:test1
 ```

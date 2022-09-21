@@ -41,6 +41,6 @@ spec:
         kind: Deployment
         name: "(kustomize-controller|helm-controller|source-controller)"
 #  images:
-#    - name: docker.io/fluxcd/source-controller
-#      newName: localhost:5050/source-controller
+#    - name: ghcr.io/fluxcd/kustomize-controller
+#      newName: localhost:5050/kustomize-controller
 #      newTag: test1
