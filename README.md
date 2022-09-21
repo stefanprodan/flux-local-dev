@@ -354,8 +354,28 @@ make sync
 flux reconcile ks flux-sync --with-source
 ```
 
-Finally, verify that the upgrade was successful with:
+### Manual testing
+
+Test the new feature by adding a Flux resource to the `kubernetes/apps/source-test.yaml`:
+
+```yaml
+apiVersion: source.toolkit.fluxcd.io/v1beta2
+kind: OCIRepository
+metadata:
+  name: podinfo-keyless
+  namespace: apps
+spec:
+  interval: 5m
+  url: oci://ghcr.io/stefanprodan/manifests/podinfo
+  ref:
+    semver: "*"
+  verify:
+    provider: cosign
+```
+
+Sync the changes on the cluster and see the reconciliation result:
 
 ```shell
-flux check 
+make sync
+flux get source oci podinfo-keyless -n apps
 ```
