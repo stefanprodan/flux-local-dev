@@ -1,10 +1,11 @@
 # flux-local-dev
 
-[Flux](https://fluxcd.io) local dev environment with Docker and Kubernetes KIND.
+Spin up a local dev environment for [Flux](https://github.com/fluxcd/flux2)
+with Docker and Kubernetes KIND in under five minutes.
 
 ## Who is this for?
 
-- **Flux users** who want to test Flux configs locally, without having to push changes to a Git repository. 
+- **Flux users** who want to test Flux configs locally, without having to push changes to a Git repository.
   Config changes are pushed to a local registry and synced on the cluster by Flux automatically.
 - **Flux contributors** who want to test their changes to Flux controllers locally,
   without having to push the container images to an external registry.
@@ -49,7 +50,7 @@ installed at bootstrap.
 
 ## How to get started?
 
-### Prerequisites 
+### Prerequisites
 
 Install Kubernetes kind, kubectl, flux and other CLI tools with Homebrew:
 
@@ -134,7 +135,7 @@ make down
 
 Assuming you are contributing a change to kustomize-controller,
 and you want to run a series of end-to-end tests before opening a PR.
-Most importantly, you want to make sure your changes don't break Flux 
+Most importantly, you want to make sure your changes don't break Flux
 capability to upgrade itself.
 
 ### Build and push the controller image
@@ -175,6 +176,7 @@ spec:
 Sync the changes on the cluster with `make sync` and verify that the image is being rolled out:
 
 ```shell
+make sync
 kubectl -n flux-system get deploy/kustomize-controller --watch
 ```
 
@@ -243,6 +245,110 @@ spec:
 Sync the changes on the cluster with `make sync` and wait for the new version to rollout:
 
 ```shell
+make sync
+flux reconcile ks flux-sync --with-source
+```
+
+Finally, verify that the upgrade was successful with:
+
+```shell
+flux check 
+```
+
+## How to test Flux CRDs?
+
+Assuming you are contributing an API change to source-controller,
+and you want to run a series of end-to-end tests before opening a PR.
+
+### Build and push the controller image
+
+From within the source-controller local clone, run `make docker-build` to build the controller image.
+If your local machine is an Apple M1, set the arch to `linux/arm64` and run:
+
+```shell
+IMG=localhost:5050/source-controller \
+TAG=oci1 \
+BUILD_PLATFORMS=linux/arm64 \
+BUILD_ARGS=--load \
+make docker-build docker-push
+```
+
+### Build and push the manifests
+
+From within the source-controller local clone, extract the Flux manifests to a directory:
+
+```shell
+mkdir -p flux-vnext
+
+flux install --components-extra=image-reflector-controller,image-automation-controller \
+--export > ./flux-vnext/install.yaml
+```
+
+Replace the CRD with the one from your branch:
+
+```shell
+export CRD_NAME="ocirepositories.source.toolkit.fluxcd.io"
+yq e 'select(.metadata.name != env(CRD_NAME))' -i ./flux-vnext/install.yaml
+
+CRD_BASE_PATH="./config/crd/bases"
+CRD_FILE_NAME="source.toolkit.fluxcd.io_ocirepositories.yaml"
+cp ${CRD_BASE_PATH}/${CRD_FILE_NAME} ./flux-vnext/
+```
+
+Push the manifests to your local registry:
+
+```shell
+flux push artifact oci://localhost:5050/flux:latest --path ./flux-vnext \
+--source="$(git config --get remote.origin.url)" \
+--revision="$(git rev-parse HEAD)"
+```
+
+### Deploy the controller
+
+From within the flux-local-dev clone, open the `kubernetes/clusters/local/flux-system/flux-source.yaml` file,
+change the URL to point to your local registry and enable the insecure flag:
+
+```yaml
+apiVersion: source.toolkit.fluxcd.io/v1beta2
+kind: OCIRepository
+metadata:
+  name: flux-source
+  namespace: flux-system
+spec:
+  url: oci://kind-registry:5000/flux
+  insecure: true
+```
+
+Open the `kubernetes/clusters/local/flux-system/flux-sync.yaml` file
+and patch the controller deployment with the local image:
+
+```yaml
+apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
+kind: Kustomization
+metadata:
+  name: flux-sync
+  namespace: flux-system
+spec:
+  images:
+    - name: ghcr.io/fluxcd/source-controller
+      newName: localhost:5050/source-controller
+      newTag: oci1
+  patches:
+    - patch: |
+        - op: add
+          path: /spec/template/spec/containers/0/env/-
+          value:
+            name: TUF_ROOT
+            value: "/tmp/.sigstore"
+      target:
+        kind: Deployment
+        name: "source-controller"
+```
+
+Sync the changes on the cluster with `make sync` and wait for the new version to rollout:
+
+```shell
+make sync
 flux reconcile ks flux-sync --with-source
 ```
 
