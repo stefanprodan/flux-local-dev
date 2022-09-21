@@ -1,0 +1,46 @@
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
+kind: Kustomization
+metadata:
+  name: flux-sync
+  namespace: flux-system
+spec:
+  interval: 24h
+  timeout: 5m
+  path: ./
+  prune: true
+  sourceRef:
+    kind: OCIRepository
+    name: flux-source
+  patches:
+    - patch: |
+        - op: add
+          path: /spec/template/spec/containers/0/args/-
+          value: --concurrent=20
+        - op: add
+          path: /spec/template/spec/containers/0/args/-
+          value: --requeue-dependency=5s
+      target:
+        kind: Deployment
+        name: "(kustomize-controller|helm-controller|source-controller)"
+    - patch: |
+        apiVersion: apps/v1
+        kind: Deployment
+        metadata:
+          name: all
+        spec:
+          template:
+            spec:
+              containers:
+                - name: manager
+                  resources:
+                    limits:
+                      cpu: 2000m
+                      memory: 2Gi
+      target:
+        kind: Deployment
+        name: "(kustomize-controller|helm-controller|source-controller)"
+#  images:
+#    - name: docker.io/fluxcd/source-controller
+#      newName: localhost:5050/source-controller
+#      newTag: test1

@@ -1,0 +1,13 @@
+---
+apiVersion: source.toolkit.fluxcd.io/v1beta2
+kind: OCIRepository
+metadata:
+  name: flux-source
+  namespace: flux-system
+spec:
+  interval: 12h0m0s
+  provider: generic
+  ref:
+    tag: latest
+  url: oci://docker.io/fluxcd/flux-manifests
+

@@ -1,0 +1,13 @@
+---
+apiVersion: source.toolkit.fluxcd.io/v1beta2
+kind: OCIRepository
+metadata:
+  name: cluster-source
+  namespace: flux-system
+spec:
+  insecure: true
+  interval: 1m
+  provider: generic
+  ref:
+    tag: local
+  url: oci://kind-registry:5000/flux-cluster-sync
