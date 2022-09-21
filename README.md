@@ -49,19 +49,36 @@ installed at bootstrap.
 
 ## How to get started?
 
+### Prerequisites 
+
 Install Kubernetes kind, kubectl, flux and other CLI tools with Homebrew:
 
 ```shell
 make tools
 ```
 
-Create the local cluster and registry:
+The complete list of tools can be found in the `Brewfile`.
+
+### Bootstrap
+
+Start the dev environment with:
 
 ```shell
 make up
 ```
 
-Before running `up` make sure the following ports are free on your local machine: `5050`, `80` and `443`.
+The `make up` command performs the following steps:
+- creates the Docker registry container if it's not already running
+- creates the Kubernetes Kind cluster if it's not already running
+- pushes the Kubernetes manifests as OCI artifacts to the local registry
+  - `locahost:5050/flux-cluster-sync` is generated from `kubernetes/clusters/local`
+  - `locahost:5050/flux-infra-sync` is generated from `kubernetes/infra`
+  - `locahost:5050/flux-apps-sync` is generated from `kubernetes/apps`
+- installs Flux on the clusters and configures it to self upgrade from `oci://ghcr.io/fluxcd/flux-manifests`
+- waits for Flux to reconcile the cluster addons from `oci://kind-registry:5000/flux-infra-sync`
+- waits for Flux to reconcile the demo apps from `oci://kind-registry:5000/flux-apps-sync`
+
+### Access Flux UI
 
 Add the following domains to `/etc/hosts`:
 
@@ -85,7 +102,9 @@ Access the Flux UI and Grafana using the username `admin` and password `flux`:
 
 Access the demo application on [http://podinfo.flux.local](http://ui.flux.local/).
 
-Teardown the whole environment with:
+### Teardown
+
+Delete the registry and the Kubernetes custer with:
 
 ```shell
 make down
