@@ -2,6 +2,14 @@
 
 [Flux](https://fluxcd.io) local dev environment with Docker and Kubernetes KIND.
 
+## Who is this for?
+
+- **Flux users** who want to test Flux configs locally, without having to push changes to a Git repository. 
+  Config changes are pushed to the local registry `localhost:5050`
+  and synced on the local cluster by Flux automatically from `kind-registry:5000`.
+- **Flux contributors** who want to test their changes to Flux controllers locally,
+  without having to push the container images to an external registry.
+
 ## Bootstrap
 
 Install Kubernetes kind, kubectl, FLux CLI and other tools with Homebrew:
@@ -18,7 +26,7 @@ make up
 
 Before running `up` make sure the following ports are free on your local machine: `5050`, `80` and `443`.
 
-When the command finishes the following components are installed on your local machine:
+When the command finishes the following components are installed:
 
 | Component             | Role                            | Host                        |
 |-----------------------|---------------------------------|-----------------------------|
@@ -52,4 +60,3 @@ Access the Flux UI and Grafana using the username `admin` and password `flux`:
 - [http://grafana.flux.local/d/flux-cluster](http://grafana.flux.local/d/flux-cluster/flux-cluster-stats?orgId=1&refresh=10s)
 
 Access the demo application on [http://podinfo.flux.local](http://ui.flux.local/).
-
