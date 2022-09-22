@@ -14,6 +14,7 @@ metadata:
   name: podinfo
   namespace: apps
 spec:
+  serviceAccountName: dev-team
   interval: 10m
   chart:
     spec:

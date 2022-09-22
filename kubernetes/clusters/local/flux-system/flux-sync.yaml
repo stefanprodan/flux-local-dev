@@ -40,7 +40,13 @@ spec:
       target:
         kind: Deployment
         name: "(kustomize-controller|helm-controller|source-controller)"
-#  images:
-#    - name: ghcr.io/fluxcd/kustomize-controller
-#      newName: localhost:5050/kustomize-controller
-#      newTag: test1
+    - patch: |
+        apiVersion: v1
+        kind: Namespace
+        metadata:
+          name: flux-system
+          labels:
+            toolkit.fluxcd.io/tenant: sre-team
+      target:
+        kind: Namespace
+        name: flux-system
