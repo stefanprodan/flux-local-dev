@@ -52,6 +52,13 @@ installed at bootstrap.
 
 ### Prerequisites
 
+Start by cloning the repository locally:
+
+```shell
+git clone https://github.com/stefanprodan/flux-local-dev.git
+cd flux-local-dev
+```
+
 Install Kubernetes kind, kubectl, flux and other CLI tools with Homebrew:
 
 ```shell
