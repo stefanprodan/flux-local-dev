@@ -24,7 +24,11 @@ check: ## Check if the NGINX ingress self-signed TLS works
 tools: ## Install Kubernetes kind, kubectl, FLux CLI and other tools with Homebrew
 	brew bundle
 
-.PHONY: local-cluster-up
+.PHONY: validate
+validate: ## Validate the Kubernetes manifests (including Flux custom resources)
+	scripts/test/validate.sh
+
+.PHONY: cluster-up
 cluster-up:
 	scripts/kind/up.sh
 
