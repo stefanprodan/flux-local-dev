@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env bash
 set -o errexit
 
 kubernetes_path='kubernetes'
