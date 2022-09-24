@@ -9,5 +9,5 @@ spec:
   provider: generic
   ref:
     tag: latest
-  url: oci://ghcr.io/fluxcd/flux-manifests #oci://kind-registry:5000/flux
+  url: oci://kind-registry:5000/flux #oci://ghcr.io/fluxcd/flux-manifests
   insecure: true

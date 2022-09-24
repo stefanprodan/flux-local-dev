@@ -1,0 +1,55 @@
+apiVersion: source.toolkit.fluxcd.io/v1beta2
+kind: OCIRepository
+metadata:
+  name: podinfo-keyless
+  namespace: apps
+spec:
+  interval: 5m
+  url: oci://ghcr.io/stefanprodan/manifests/podinfo
+  ref:
+    semver: "*"
+  verify:
+    provider: cosign
+---
+apiVersion: source.toolkit.fluxcd.io/v1beta2
+kind: OCIRepository
+metadata:
+  name: podinfo-signed
+  namespace: apps
+spec:
+  interval: 5m
+  url: oci://ghcr.io/stefanprodan/podinfo-deploy
+  ref:
+    semver: "*"
+  verify:
+    provider: cosign
+    secretRef:
+      name: podinfo-key
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  namespace: apps
+  name: podinfo-key
+stringData:
+  key.pub: |
+    -----BEGIN PUBLIC KEY-----
+    MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEST+BqQ1XZhhVYx0YWQjdUJYIG5Lt
+    iz2+UxRIqmKBqNmce2T+l45qyqOs99qfD7gLNGmkVZ4vtJ9bM7FxChFczg==
+    -----END PUBLIC KEY-----
+---
+apiVersion: source.toolkit.fluxcd.io/v1beta2
+kind: OCIRepository
+metadata:
+  name: podinfo-chart-signed
+  namespace: apps
+spec:
+  interval: 5m
+  url: oci://ghcr.io/stefanprodan/charts/podinfo
+  ref:
+    semver: "*"
+  layerSelector:
+    mediaType: "application/vnd.cncf.helm.chart.content.v1.tar+gzip"
+    operation: copy
+  verify:
+    provider: cosign
