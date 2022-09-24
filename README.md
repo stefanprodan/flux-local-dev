@@ -120,6 +120,12 @@ Add a label to the `apps` namespace definition:
 yq eval '.metadata.labels.env="dev"' -i ./kubernetes/apps/namespace.yaml
 ```
 
+Validate the Kubernetes manifests and Flux custom resources:
+
+```shell
+make validate
+```
+
 Push the changes to the local registry with:
 
 ```shell
