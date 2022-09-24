@@ -146,6 +146,96 @@ Delete the registry and the Kubernetes cluster with:
 make down
 ```
 
+## How to use CUE for manifests generation?
+
+In the [cue](/cue) directory you can find an example of how to use
+[cuelang](https://cuelang.org/)
+to define and generate Kubernetes resources.
+
+List the CUE generated resources with `make cue-ls`:
+
+```console
+$ make cue-ls
+
+RESOURCE                                   API VERSION
+Namespace/cue-apps                         v1
+ServiceAccount/cue-apps/flux-cue-apps      v1
+Service/cue-apps/podinfo                   v1
+ServiceAccount/cue-apps/podinfo            v1
+Deployment/cue-apps/podinfo                apps/v1
+HorizontalPodAutoscaler/cue-apps/podinfo   autoscaling/v2beta2
+Ingress/cue-apps/podinfo                   networking.k8s.io/v1
+ServiceMonitor/cue-apps/podinfo            monitoring.coreos.com/v1
+RoleBinding/cue-apps/flux-cue-apps         rbac.authorization.k8s.io/v1
+```
+
+Push the generated resources to the local registry with `make cue-push`:
+
+```console
+$ make cue-push 
+► pushing artifact to localhost:5050/flux-cue-apps-sync:local
+✔ artifact successfully pushed to localhost:5050/flux-cue-apps-sync@sha256:59676338abbb245a80345713fea24c2686c8c38cbd235691dd0af0fdc00fe116
+```
+
+To reconcile the resources on the cluster, add a file called `cue-apps.yaml` to the `kubernetes/cluster/local` directory:
+
+```yaml
+---
+apiVersion: source.toolkit.fluxcd.io/v1beta2
+kind: OCIRepository
+metadata:
+  name: cue-apps-source
+  namespace: flux-system
+spec:
+  insecure: true
+  interval: 1m
+  provider: generic
+  ref:
+    tag: local
+  url: oci://kind-registry:5000/flux-cue-apps-sync
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
+kind: Kustomization
+metadata:
+  name: cue-apps-sync
+  namespace: flux-system
+spec:
+  dependsOn:
+    - name: infra-config
+  interval: 5m
+  retryInterval: 30s
+  timeout: 5m
+  path: ./
+  prune: true
+  sourceRef:
+    kind: OCIRepository
+    name: cue-apps-source
+```
+
+Sync the changes on the cluster with:
+
+```shell
+make sync
+```
+
+List the reconciled objects with:
+
+```console
+$ flux tree ks cue-apps-sync 
+Kustomization/flux-system/cue-apps-sync
+├── Namespace/cue-apps
+├── ServiceAccount/cue-apps/flux-cue-apps
+├── ServiceAccount/cue-apps/podinfo
+├── RoleBinding/cue-apps/flux-cue-apps
+├── Service/cue-apps/podinfo
+├── Deployment/cue-apps/podinfo
+├── HorizontalPodAutoscaler/cue-apps/podinfo
+├── ServiceMonitor/cue-apps/podinfo
+└── Ingress/cue-apps/podinfo
+```
+
+If you make changes to the CUE definitions, run `make cue-push` and Flux will apply the changes on its own.
+
 ## How to test Flux controllers?
 
 Assuming you are contributing a change to kustomize-controller,
