@@ -50,3 +50,16 @@ spec:
       target:
         kind: Namespace
         name: flux-system
+    - patch: |
+        - op: add
+          path: /spec/template/spec/containers/0/env/-
+          value:
+            name: TUF_ROOT
+            value: "/tmp/.sigstore"
+      target:
+        kind: Deployment
+        name: "source-controller"
+#  images:
+#    - name: ghcr.io/fluxcd/source-controller
+#      newName: localhost:5050/source-controller
+#      newTag: rc15

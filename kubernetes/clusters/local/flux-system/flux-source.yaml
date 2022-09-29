@@ -5,9 +5,9 @@ metadata:
   name: flux-source
   namespace: flux-system
 spec:
-  interval: 12h0m0s
+  interval: 1m
   provider: generic
   ref:
     tag: latest
-  url: oci://ghcr.io/fluxcd/flux-manifests #oci://kind-registry:5000/flux
+  url: oci://ghcr.io/fluxcd/flux-manifests
   insecure: true

@@ -13,7 +13,7 @@ down: cluster-down ## Delete the local cluster and registry
 
 .PHONY: sync
 sync: flux-push ## Build, push and reconcile the manifests
-	flux reconcile ks infra-config --with-source
+	flux reconcile ks cluster-sync --with-source
 	flux reconcile ks apps-sync --with-source
 
 .PHONY: check
@@ -47,6 +47,23 @@ flux-down:
 .PHONY: flux-push
 flux-push:
 	scripts/flux/push.sh
+
+.PHONY: cue-mod
+cue-mod:
+	@cd cue && go get -u k8s.io/api/... && cue get go k8s.io/api/...
+
+.PHONY: cue-gen
+cue-gen: ## Print the CUE generated objects
+	@cd cue && cue fmt ./... && cue vet --all-errors --concrete ./...
+	@cd cue && cue gen
+
+.PHONY: cue-ls
+cue-ls: ## List the CUE generated objects
+	@cd cue && cue ls
+
+.PHONY: cue-push
+cue-push: ## Push the CUE generated manifests to the registry
+	scripts/flux/push-cue.sh
 
 .PHONY: help
 help:  ## Display this help menu
