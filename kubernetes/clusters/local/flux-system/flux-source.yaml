@@ -10,4 +10,6 @@ spec:
   ref:
     tag: latest
   url: oci://ghcr.io/fluxcd/flux-manifests
-  insecure: true
+  verify:
+    provider: cosign
+

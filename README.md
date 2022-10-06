@@ -15,7 +15,8 @@ with Docker and Kubernetes KIND in under five minutes.
 
 This project spins up a Docker Registry container named `kind-registry` and a Kubernetes Kind cluster
 named `flux` under the same Docker network. Then it installs Flux and configures it to upgrade itself
-from the latest OCI artifact published at `ghcr.io/fluxcd/flux-manifests`.
+from the latest OCI artifact published at `ghcr.io/fluxcd/flux-manifests`. Before an upgrade, Flux
+verifies that the OCI artifacts are signed by the Flux team with Cosign and GitHub OIDC.
 
 | Component                                                                                                | Role                            | Host                        |
 |----------------------------------------------------------------------------------------------------------|---------------------------------|-----------------------------|
