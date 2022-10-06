@@ -1,5 +1,9 @@
 # flux-local-dev
 
+[![test](https://github.com/stefanprodan/flux-local-dev/workflows/test/badge.svg)](https://github.com/stefanprodan/flux-local-dev/actions)
+[![license](https://img.shields.io/github/license/stefanprodan/flux-local-dev.svg)](https://github.com/stefanprodan/flux-local-dev/blob/main/LICENSE)
+[![release](https://img.shields.io/github/release/stefanprodan/flux-local-dev/all.svg)](https://github.com/stefanprodan/flux-local-dev/releases)
+
 Spin up a local dev environment for [Flux](https://github.com/fluxcd/flux2)
 with Docker and Kubernetes KIND in under five minutes.
 
