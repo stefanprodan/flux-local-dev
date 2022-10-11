@@ -1,0 +1,186 @@
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  labels:
+    app.kubernetes.io/component: flux-xs
+  name: flux-xs
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cluster-admin
+subjects:
+  - kind: ServiceAccount
+    name: flux-xs
+    namespace: flux-xs
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  labels:
+    app.kubernetes.io/component: flux-xs
+  name: flux-xs
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  labels:
+    app.kubernetes.io/component: flux-xs
+  name: flux-xs
+  namespace: flux-xs
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app.kubernetes.io/component: flux-xs
+    control-plane: controller
+  name: flux-xs
+  namespace: flux-xs
+spec:
+  ports:
+  - name: http
+    port: 80
+    protocol: TCP
+    targetPort: http
+  selector:
+    app: flux-xs
+  type: ClusterIP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app.kubernetes.io/component: flux-xs
+    control-plane: controller
+  name: flux-xs
+  namespace: flux-xs
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: flux-xs
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      annotations:
+        prometheus.io/scrape: "true"
+      labels:
+        app: flux-xs
+    spec:
+      securityContext:
+        fsGroup: 1337
+      serviceAccountName: flux-xs
+      terminationGracePeriodSeconds: 10
+      volumes:
+      - emptyDir: {}
+        name: data
+      - emptyDir: {}
+        name: tmp
+      containers:
+        - name: source-controller
+          image: ghcr.io/fluxcd/source-controller:v0.30.0
+          imagePullPolicy: IfNotPresent
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+            capabilities:
+              drop: [ "ALL" ]
+            seccompProfile:
+              type: RuntimeDefault
+          ports:
+            - containerPort: 9090
+              name: http
+              protocol: TCP
+            - containerPort: 8080
+              name: http-prom
+              protocol: TCP
+            - containerPort: 9440
+              name: healthz
+              protocol: TCP
+          env:
+            - name: RUNTIME_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: TUF_ROOT # store the Fulcio root CA file in tmp
+              value: "/tmp/.sigstore"
+          args:
+            - --watch-all-namespaces
+            - --log-level=info
+            - --log-encoding=json
+            - --enable-leader-election=false
+            - --storage-path=/data
+            - --storage-adv-addr=flux-xs.$(RUNTIME_NAMESPACE).svc.cluster.local.
+          livenessProbe:
+            httpGet:
+              port: healthz
+              path: /healthz
+          readinessProbe:
+            httpGet:
+              port: http
+              path: /
+          resources:
+            limits:
+              cpu: 1000m
+              memory: 1Gi
+            requests:
+              cpu: 50m
+              memory: 64Mi
+          volumeMounts:
+            - name: data
+              mountPath: /data
+            - name: tmp
+              mountPath: /tmp
+        - name: kustomize-controller
+          image: ghcr.io/fluxcd/kustomize-controller:v0.29.0
+          imagePullPolicy: IfNotPresent
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+            capabilities:
+              drop: [ "ALL" ]
+            seccompProfile:
+              type: RuntimeDefault
+          ports:
+            - containerPort: 8081
+              name: http-prom
+              protocol: TCP
+            - containerPort: 9441
+              name: healthz
+              protocol: TCP
+          env:
+            - name: SOURCE_CONTROLLER_LOCALHOST
+              value: "localhost:9090"
+            - name: RUNTIME_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+          args:
+            - --watch-all-namespaces
+            - --log-level=info
+            - --log-encoding=json
+            - --enable-leader-election=false
+            - --metrics-addr=:8081
+            - --health-addr=:9441
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: healthz
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: healthz
+          resources:
+            limits:
+              cpu: 1000m
+              memory: 1Gi
+            requests:
+              cpu: 100m
+              memory: 64Mi
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
