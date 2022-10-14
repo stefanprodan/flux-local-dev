@@ -1,0 +1,28 @@
+---
+apiVersion: source.toolkit.fluxcd.io/v1beta2
+kind: OCIRepository
+metadata:
+  name: kyverno-source
+  namespace: flux-system
+spec:
+  interval: 1m
+  provider: generic
+  ref:
+    semver: "*"
+  url: oci://ghcr.io/kyverno/manifests/kyverno
+  verify:
+    provider: cosign
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
+kind: Kustomization
+metadata:
+  name: kyverno-sync
+  namespace: flux-system
+spec:
+  interval: 24h
+  timeout: 5m
+  path: ./
+  prune: true
+  sourceRef:
+    kind: OCIRepository
+    name: kyverno-source
