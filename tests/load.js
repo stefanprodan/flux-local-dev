@@ -3,8 +3,6 @@ import http from 'k6/http';
 import { sleep } from 'k6';
 
 export const options = {
-    duration: '30s',
-    vus: 10,
     insecureSkipTLSVerify: true,
     hosts: {
       'podinfo.flux.local:80': '127.0.0.1:80',

@@ -3,6 +3,7 @@
 # - Docker
 # - Homebrew
 
+MAKEFLAGS += --silent
 .DEFAULT_GOAL := help
 
 .PHONY: up
