@@ -12,11 +12,13 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	// APIGroups is the API groups the resources belong to. '*' is all groups.
 	// If '*' is present, the length of the slice must be one.
 	// Required.
+	// +listType=atomic
 	apiGroups?: [...string] @go(APIGroups,[]string) @protobuf(1,bytes,rep)
 
 	// APIVersions is the API versions the resources belong to. '*' is all versions.
 	// If '*' is present, the length of the slice must be one.
 	// Required.
+	// +listType=atomic
 	apiVersions?: [...string] @go(APIVersions,[]string) @protobuf(2,bytes,rep)
 
 	// Resources is a list of resources this rule applies to.
@@ -34,6 +36,7 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	//
 	// Depending on the enclosing object, subresources might not be allowed.
 	// Required.
+	// +listType=atomic
 	resources?: [...string] @go(Resources,[]string) @protobuf(3,bytes,rep)
 
 	// scope specifies the scope of this rule.
@@ -477,6 +480,7 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	// for all of those operations and any future admission operations that are added.
 	// If '*' is present, the length of the slice must be one.
 	// Required.
+	// +listType=atomic
 	operations?: [...#OperationType] @go(Operations,[]OperationType) @protobuf(1,bytes,rep,casttype=OperationType)
 
 	#Rule

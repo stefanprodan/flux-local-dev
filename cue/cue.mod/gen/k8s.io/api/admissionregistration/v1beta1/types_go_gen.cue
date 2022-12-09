@@ -4,53 +4,17 @@
 
 package v1beta1
 
-import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+import (
+	"k8s.io/api/admissionregistration/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+)
 
 // Rule is a tuple of APIGroups, APIVersion, and Resources.It is recommended
 // to make sure that all the tuple expansions are valid.
-#Rule: {
-	// APIGroups is the API groups the resources belong to. '*' is all groups.
-	// If '*' is present, the length of the slice must be one.
-	// Required.
-	apiGroups?: [...string] @go(APIGroups,[]string) @protobuf(1,bytes,rep)
-
-	// APIVersions is the API versions the resources belong to. '*' is all versions.
-	// If '*' is present, the length of the slice must be one.
-	// Required.
-	apiVersions?: [...string] @go(APIVersions,[]string) @protobuf(2,bytes,rep)
-
-	// Resources is a list of resources this rule applies to.
-	//
-	// For example:
-	// 'pods' means pods.
-	// 'pods/log' means the log subresource of pods.
-	// '*' means all resources, but not subresources.
-	// 'pods/*' means all subresources of pods.
-	// '*/scale' means all scale subresources.
-	// '*/*' means all resources and their subresources.
-	//
-	// If wildcard is present, the validation rule will ensure resources do not
-	// overlap with each other.
-	//
-	// Depending on the enclosing object, subresources might not be allowed.
-	// Required.
-	resources?: [...string] @go(Resources,[]string) @protobuf(3,bytes,rep)
-
-	// scope specifies the scope of this rule.
-	// Valid values are "Cluster", "Namespaced", and "*"
-	// "Cluster" means that only cluster-scoped resources will match this rule.
-	// Namespace API objects are cluster-scoped.
-	// "Namespaced" means that only namespaced resources will match this rule.
-	// "*" means that there are no scope restrictions.
-	// Subresources match the scope of their parent resource.
-	// Default is "*".
-	//
-	// +optional
-	scope?: null | #ScopeType @go(Scope,*ScopeType) @protobuf(4,bytes,rep)
-}
+#Rule: v1.#Rule
 
 // ScopeType specifies a scope for a Rule.
-#ScopeType: string // #enumScopeType
+#ScopeType: v1.#ScopeType // #enumScopeType
 
 #enumScopeType:
 	#ClusterScope |
@@ -59,13 +23,13 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 // ClusterScope means that scope is limited to cluster-scoped objects.
 // Namespace objects are cluster-scoped.
-#ClusterScope: #ScopeType & "Cluster"
+#ClusterScope: v1.#ScopeType & "Cluster"
 
 // NamespacedScope means that scope is limited to namespaced objects.
-#NamespacedScope: #ScopeType & "Namespaced"
+#NamespacedScope: v1.#ScopeType & "Namespaced"
 
 // AllScopes means that all scopes are included.
-#AllScopes: #ScopeType & "*"
+#AllScopes: v1.#ScopeType & "*"
 
 // FailurePolicyType specifies a failure policy that defines how unrecognized errors from the admission endpoint are handled.
 #FailurePolicyType: string // #enumFailurePolicyType
@@ -194,7 +158,7 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	// from putting the cluster in a state which cannot be recovered from without completely
 	// disabling the plugin, ValidatingAdmissionWebhooks and MutatingAdmissionWebhooks are never called
 	// on admission requests for ValidatingWebhookConfiguration and MutatingWebhookConfiguration objects.
-	rules?: [...#RuleWithOperations] @go(Rules,[]RuleWithOperations) @protobuf(3,bytes,rep)
+	rules?: [...v1.#RuleWithOperations] @go(Rules,[]v1.RuleWithOperations) @protobuf(3,bytes,rep)
 
 	// FailurePolicy defines how unrecognized errors from the admission endpoint are handled -
 	// allowed values are Ignore or Fail. Defaults to Ignore.
@@ -326,7 +290,7 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	// from putting the cluster in a state which cannot be recovered from without completely
 	// disabling the plugin, ValidatingAdmissionWebhooks and MutatingAdmissionWebhooks are never called
 	// on admission requests for ValidatingWebhookConfiguration and MutatingWebhookConfiguration objects.
-	rules?: [...#RuleWithOperations] @go(Rules,[]RuleWithOperations) @protobuf(3,bytes,rep)
+	rules?: [...v1.#RuleWithOperations] @go(Rules,[]v1.RuleWithOperations) @protobuf(3,bytes,rep)
 
 	// FailurePolicy defines how unrecognized errors from the admission endpoint are handled -
 	// allowed values are Ignore or Fail. Defaults to Ignore.
@@ -475,18 +439,11 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 // RuleWithOperations is a tuple of Operations and Resources. It is recommended to make
 // sure that all the tuple expansions are valid.
-#RuleWithOperations: {
-	// Operations is the operations the admission hook cares about - CREATE, UPDATE, DELETE, CONNECT or *
-	// for all of those operations and any future admission operations that are added.
-	// If '*' is present, the length of the slice must be one.
-	// Required.
-	operations?: [...#OperationType] @go(Operations,[]OperationType) @protobuf(1,bytes,rep,casttype=OperationType)
-
-	#Rule
-}
+#RuleWithOperations: v1.#RuleWithOperations
 
 // OperationType specifies an operation for a request.
-#OperationType: string // #enumOperationType
+// +enum
+#OperationType: v1.#OperationType // #enumOperationType
 
 #enumOperationType:
 	#OperationAll |
@@ -495,11 +452,11 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	#Delete |
 	#Connect
 
-#OperationAll: #OperationType & "*"
-#Create:       #OperationType & "CREATE"
-#Update:       #OperationType & "UPDATE"
-#Delete:       #OperationType & "DELETE"
-#Connect:      #OperationType & "CONNECT"
+#OperationAll: v1.#OperationType & "*"
+#Create:       v1.#OperationType & "CREATE"
+#Update:       v1.#OperationType & "UPDATE"
+#Delete:       v1.#OperationType & "DELETE"
+#Connect:      v1.#OperationType & "CONNECT"
 
 // WebhookClientConfig contains the information to make a TLS
 // connection with the webhook

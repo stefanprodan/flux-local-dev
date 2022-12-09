@@ -56,7 +56,7 @@ import (
 	// +optional
 	ipv4: string @go(IPv4) @protobuf(3,bytes,opt)
 
-	// IPv6 defines an IPv6 IP block in CIDR notation(e.g. "fd12:3456:789a:1::/64").
+	// IPv6 defines an IPv6 IP block in CIDR notation(e.g. "2001:db8::/64").
 	// At least one of IPv4 and IPv6 must be specified.
 	// This field is immutable.
 	// +optional

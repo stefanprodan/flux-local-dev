@@ -12,7 +12,7 @@ import (
 
 // CrossVersionObjectReference contains enough information to let you identify the referred resource.
 #CrossVersionObjectReference: {
-	// Kind of the referent; More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds"
+	// Kind of the referent; More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
 	kind: string @go(Kind) @protobuf(1,bytes,opt)
 
 	// Name of the referent; More info: http://kubernetes.io/docs/user-guide/identifiers#names

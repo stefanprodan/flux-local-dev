@@ -207,7 +207,7 @@ import (
 // KeyUsages specifies valid usage contexts for keys.
 // See: https://tools.ietf.org/html/rfc5280#section-4.2.1.3
 //
-//         https://tools.ietf.org/html/rfc5280#section-4.2.1.12
+//	https://tools.ietf.org/html/rfc5280#section-4.2.1.12
 #KeyUsage: string // #enumKeyUsage
 
 #enumKeyUsage:
