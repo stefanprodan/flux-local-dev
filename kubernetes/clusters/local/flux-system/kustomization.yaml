@@ -5,3 +5,4 @@ resources:
   - cluster-sync.yaml
   - flux-source.yaml
   - flux-sync.yaml
+  - flux-pvc.yaml

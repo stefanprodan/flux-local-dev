@@ -41,6 +41,21 @@ spec:
         kind: Deployment
         name: "(kustomize-controller|helm-controller|source-controller)"
     - patch: |
+        - op: add
+          path: '/spec/template/spec/volumes/-'
+          value:
+            name: persistent-data
+            persistentVolumeClaim:
+              claimName: flux-pvc
+        - op: replace
+          path: '/spec/template/spec/containers/0/volumeMounts/0'
+          value:
+            name: persistent-data
+            mountPath: /data
+      target:
+        kind: Deployment
+        name: "source-controller"
+    - patch: |
         apiVersion: v1
         kind: Namespace
         metadata:
