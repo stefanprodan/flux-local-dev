@@ -71,6 +71,7 @@ make tools
 ```
 
 The complete list of tools can be found in the `Brewfile`.
+Note that the minimum required version of Flux is v0.38.2.
 
 ### Bootstrap
 
@@ -443,16 +444,6 @@ spec:
     - name: ghcr.io/fluxcd/source-controller
       newName: localhost:5050/source-controller
       newTag: oci1
-  patches:
-    - patch: |
-        - op: add
-          path: /spec/template/spec/containers/0/env/-
-          value:
-            name: TUF_ROOT
-            value: "/tmp/.sigstore"
-      target:
-        kind: Deployment
-        name: "source-controller"
 ```
 
 Sync the changes on the cluster with `make sync` and wait for the new version to rollout:
