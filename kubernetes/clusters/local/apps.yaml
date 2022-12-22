@@ -23,7 +23,7 @@ spec:
   interval: 1h
   retryInterval: 30s
   timeout: 5m
-  path: ./kubernetes/apps
+  path: ./
   prune: true
   sourceRef:
     kind: OCIRepository
