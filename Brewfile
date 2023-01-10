@@ -18,3 +18,6 @@ brew "cosign"
 # Flux
 tap "fluxcd/tap"
 brew "fluxcd/tap/flux"
+
+# Utils
+brew "k6"
