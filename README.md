@@ -71,7 +71,7 @@ make tools
 ```
 
 The complete list of tools can be found in the `Brewfile`.
-Note that the minimum required version of Flux is v0.38.2.
+Note that the minimum required version of Flux is v0.41.0.
 
 ### Bootstrap
 
