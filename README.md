@@ -71,7 +71,8 @@ make tools
 ```
 
 The complete list of tools can be found in the `Brewfile`.
-Note that the minimum required version of Flux is v0.41.0.
+
+Note that the minimum required version of Flux is `v2.0.0-rc.1`.
 
 ### Bootstrap
 
@@ -200,7 +201,7 @@ spec:
     tag: local
   url: oci://kind-registry:5000/flux-cue-apps-sync
 ---
-apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
+apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
   name: cue-apps-sync
@@ -272,7 +273,7 @@ From within the flux-local-dev clone, open the `kubernetes/clusters/local/flux-s
 and add an image patch:
 
 ```yaml
-apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
+apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
   name: flux-sync
@@ -434,7 +435,7 @@ Open the `kubernetes/clusters/local/flux-system/flux-sync.yaml` file
 and patch the controller deployment with the local image:
 
 ```yaml
-apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
+apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
   name: flux-sync
