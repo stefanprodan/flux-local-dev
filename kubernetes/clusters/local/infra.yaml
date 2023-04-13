@@ -12,7 +12,7 @@ spec:
     tag: local
   url: oci://kind-registry:5000/flux-infra-sync
 ---
-apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
+apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
   name: infra-controllers
@@ -28,7 +28,7 @@ spec:
     kind: OCIRepository
     name: infra-source
 ---
-apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
+apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
   name: infra-config
