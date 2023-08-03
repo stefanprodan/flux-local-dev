@@ -9,6 +9,7 @@ diff_push() {
   artifact_name=$1
   artifact_path=$2
 
+  diff_exit_code=0
   flux diff artifact oci://${artifact_name} \
     --path="${artifact_path}" &>/dev/null || diff_exit_code=$?
 
