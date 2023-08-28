@@ -114,10 +114,10 @@ make check
 Access the Flux UI and Grafana using the username `admin` and password `flux`:
 
 - [http://ui.flux.local/applications](http://ui.flux.local/applications)
-- [http://grafana.flux.local/d/flux-control-plane](http://grafana.flux.local/d/flux-control-plane/flux-control-plane?orgId=1&refresh=10s)
+- [http://grafana.flux.local/d/flux-control-plane](http://grafana.flux.local/d/flux-control-plane/flux-control-plane?orgId=1&refresh=10s) (username: admin, password: flux)
 - [http://grafana.flux.local/d/flux-cluster](http://grafana.flux.local/d/flux-cluster/flux-cluster-stats?orgId=1&refresh=10s)
 
-Access the demo application on [http://podinfo.flux.local](http://ui.flux.local/).
+Access the demo application on [http://podinfo.flux.local](http://podinfo.flux.local/).
 
 ### Sync local changes
 
