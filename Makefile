@@ -3,6 +3,9 @@
 # - Docker
 # - Homebrew
 
+MAKEFLAGS += --silent
+.DEFAULT_GOAL := help
+
 .PHONY: up
 up: cluster-up flux-push flux-up ## Create the local cluster and registry, install Flux and the cluster addons
 	kubectl -n flux-system wait kustomization/cluster-sync --for=condition=ready --timeout=5m
@@ -64,6 +67,10 @@ cue-ls: ## List the CUE generated objects
 .PHONY: cue-push
 cue-push: ## Push the CUE generated manifests to the registry
 	scripts/flux/push-cue.sh
+
+.PHONY: load-test
+load-test: ## Load Test
+	scripts/test/load-test.sh
 
 .PHONY: help
 help:  ## Display this help menu

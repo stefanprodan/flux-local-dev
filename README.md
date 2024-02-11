@@ -479,3 +479,11 @@ Sync the changes on the cluster and see the reconciliation result:
 make sync
 flux get source oci podinfo-keyless -n apps
 ```
+
+### Load testing
+
+Test 
+
+```shell
+make load-test
+```
